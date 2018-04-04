@@ -1,0 +1,72 @@
+/**
+ * Grab the ball and try to throw it through the opponent's goal!
+ * Move towards the ball and use your team id to determine where you need to throw it.
+ **/
+
+var myTeamId = parseInt(readline()); // if 0 you need to score on the right of the map, if 1 you need to score on the left
+
+// game loop
+var startingBallisInitialized = false;
+while (true) {
+    var tab = [];
+    var entities = parseInt(readline()); // number of entities still in game
+    for (var i = 0; i < entities; i++) {
+        var inputs = readline().split(' ');
+        var entityId = parseInt(inputs[0]); // entity identifier
+        var entityType = inputs[1]; // "FOOTBALLER", "OPPONENT" or "BALL"
+        var x = parseInt(inputs[2]); // position
+        var y = parseInt(inputs[3]); // position
+        var vx = parseInt(inputs[4]); // velocity
+        var vy = parseInt(inputs[5]); // velocity
+        var state = parseInt(inputs[6]); // 1 if the footballer is holding the ball, 0 otherwise
+        tab.push(inputs)
+    }
+    if (startingBallisInitialized === false){
+     startingBallisInitialized = true;
+     var startingBall = [tab[8][2],tab[8][3]];
+    }// fonction pour initialiser la position intiale de la ball ne s'opère qu'une seule fois
+
+        // To debug: printErr('Debug messages...');
+        defenseurMove();
+        print('MOVE 5750 3750 100');
+        print('MOVE 9500 1250 100');
+        print('MOVE 9500 5350 100');
+}
+
+function defenseurMove(){
+    var myDistanceToBall = Math.sqrt( Math.pow((tab[0][2]-tab[8][2]), 2) + Math.pow((tab[0][3]-tab[8][3]), 2));
+    if (tab[0][6] == 1){
+        print('THROW 8000 0 500');
+    }
+    else {
+        if((myDistanceToBall < distanceAdversairePlusProcheDeLaBalle()) || (tab[8][2] <3000)){
+            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 100');
+        }
+        else {
+            print('MOVE 1500 3500 100');
+        }
+    }
+}
+
+function distanceAdversairePlusProcheDeLaBalle(){
+    var dist1 = Math.sqrt( Math.pow((tab[4][2]-tab[8][2]), 2) + Math.pow((tab[4][3]-tab[8][3]), 2));
+    var dist2 = Math.sqrt( Math.pow((tab[5][2]-tab[8][2]), 2) + Math.pow((tab[5][3]-tab[8][3]), 2));
+    var dist3 = Math.sqrt( Math.pow((tab[6][2]-tab[8][2]), 2) + Math.pow((tab[6][3]-tab[8][3]), 2));
+    var dist4 = Math.sqrt( Math.pow((tab[7][2]-tab[8][2]), 2) + Math.pow((tab[7][3]-tab[8][3]), 2));
+    return Math.min(dist1,dist2,dist3,dist4);
+}
+
+function calculTrajectoireOk(xPropo, yPropo){//permet de vérifier si notre trajectoire de ball est ok
+    equationTrajectoireBallon = droiteEquation(tab[0][2],tab[0][3],xPropo,yPropo);
+    adversaireBloquant = false;
+    var i = 3;
+    while((i < 7) && (adversaireBloquant === false)){
+        i++;
+    }
+}
+
+function droiteEquation(x,y,u,v){
+    a = (v-y)/(u-x);
+    b = v - a*u;
+    return [a,b];
+}
