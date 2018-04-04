@@ -84,6 +84,15 @@ function distanceBalleBut() {
     }
 }
 
+function distancePlayerEnnemies(playerId){
+    var tabEnnemiesDistance = [];
+    for(var ennemyId = 4; ennemyId < 8; ennemyId++) {
+        var disti = Math.sqrt( Math.pow((tab[playerId][2]-tab[ennemyId][2]), 2) + Math.pow((tab[playerId][3]-tab[ennemyId][3]), 2));
+        tabEnnemiesDistance.push(disti);
+    }
+    return tabEnnemiesDistance;
+}
+
 function droiteEquation(x,y,u,v){
     a = (v-y)/(u-x);
     b = v - a*u;
