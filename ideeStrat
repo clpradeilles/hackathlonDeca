@@ -12,3 +12,10 @@ Récupérateur, reste autour de la position d'apparition de la balle pour la ré
 Attaquant marquer des buts, pas encore de strat précise
 
 EDIT 1 : Je commence le rôle du gardien qui me semble le plus important
+EDIT 2 : Je m'attaque aux attaquants
+
+Idée : 
+		si distPlayerEnnemies(player) suffisamment grande : javance puis à partir d'un x suffisant (12000 ?) je tire
+		sinon passe au mate le plus proche
+		
+		dans tous les cas : si distPlayerWithBalltoBut(player) suffisamment petite (inf 2000) : tir
