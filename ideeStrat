@@ -1,1 +1,14 @@
-Idée de strat :
+Idée de strat 1 :
+1 gardien
+1 récupérateur
+2 attaquants
+
+Role de chacun :
+
+Gardien reste dans la surface et intercepte la balle quand elle arrive pour la relancer au récupérateur ou attaquant en fonction du plus proche, nécessite calcul de la trajectoire de la balle et du joueur adverse qui arrive
+
+Récupérateur, reste autour de la position d'apparition de la balle pour la récupérer immédiatement après un but,(v2 amélioration en fonction de ou apparait la balle plutot dans notre camp ou camp adverse faire varier son role)
+
+Attaquant marquer des buts, pas encore de strat précise
+
+EDIT 1 : Je commence le rôle du gardien qui me semble le plus important
