@@ -19,7 +19,7 @@ while (true) {
         var vx = parseInt(inputs[4]); // velocity
         var vy = parseInt(inputs[5]); // velocity
         var state = parseInt(inputs[6]); // 1 if the footballer is holding the ball, 0 otherwise
-        tab.push(inputs)
+        tab.push(inputs);
     }
     if (startingBallisInitialized === false){
         startingBallisInitialized = true;
@@ -30,13 +30,13 @@ while (true) {
        var equationBall = droiteEquationTrajectoireBall();
         // To debug: printErr('Debug messages...');
         if (myTeamId === 0){
-            defenseurMove0();
+            print(defenseurMove0());
             recuperateurMove0(1);
             recuperateurMove0(2);
             recuperateurMove0(3);
         }
         else {
-            defenseurMove1();
+            print(defenseurMove1());
             recuperateurMove1(1);
             recuperateurMove1(2);
             recuperateurMove1(3);
@@ -58,31 +58,19 @@ function recuperateurMove0(id){
 }
 
 function defenseurMove0(){
+    if (tab[0][6] == 1)
+        return('THROW '+ tab [0][2] +' 0 500');
+    if (tab[8][2] > 7000)
+        return ('MOVE 2000 3750 100');
     var myDistanceToBall = Math.sqrt( Math.pow((tab[0][2]-tab[8][2]), 2) + Math.pow((tab[0][3]-tab[8][3]), 2));
-    if (tab[0][6] == 1)//cas ou il grab la balle
-        print('THROW 16000 3750 500');
-    else {
-        if (myDistanceToBall < distanceAdversairePlusProcheDeLaBalle())// cas ou il est plus proched de la balle que adversaire
-            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
-        else {
-            if (tab[8][2] > 7000){
-                print('MOVE 2000 3750 100');
-            }
-            else {
-                if (trajectoireDangereuse(equationBall)){//cas ou il n'est pas le plus proche de la balle et la trajectoire est dangereuse
-                       print('MOVE ' + tab[8][2] + ' ' + Math.round((equationBall[0] * 2000 + equationBall[1])) + ' 100'); 
-                    }
-                    else {// cas ou la trajectoire non dangereuse et pas le plus proche
-                       print('MOVE 2000 3750 100'); 
-                    }
-                }
-        }
-    }
+    if (myDistanceToBall < distanceAdversairePlusProcheDeLaBalle())// cas ou il est plus proched de la balle que adversaire
+        return('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
+    return('MOVE ' + tab[8][2] + ' ' + Math.round(equationBall[0] * tab[8][2]+ equationBall[1]) + ' 100');
 }
 
 function recuperateurMove1(id){
     var myDistanceToBall = Math.sqrt( Math.pow((tab[id][2]-tab[8][2]), 2) + Math.pow((tab[id][3]-tab[8][3]), 2));
-    if (tab[1][6] == 1)
+    if (tab[id][6] == 1)
         print('THROW 0 5250 500');
     else {
         if(myDistanceToBall < distanceAdversairePlusProcheDeLaBalle()){
@@ -95,23 +83,14 @@ function recuperateurMove1(id){
 }
 
 function defenseurMove1(){
+    if (tab[0][6] == 1)
+        return('THROW '+ tab [0][2] +' 0 500');
+    if (tab[8][2] < 9000)
+        return ('MOVE 14000 3750 100');
     var myDistanceToBall = Math.sqrt( Math.pow((tab[0][2]-tab[8][2]), 2) + Math.pow((tab[0][3]-tab[8][3]), 2));
-    if (tab[0][6] == 1){
-        print('THROW 0 3750 500');
-    }
-    else {
-        if((myDistanceToBall < distanceAdversairePlusProcheDeLaBalle()) && (tab[8][2] < 8000)){
-            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
-        }
-        else { 
-            if (tab[8][2] < 8000){
-                print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 100');
-            }
-            else {
-                print('MOVE 13500 3750 100');
-            }
-        }
-    }
+    if (myDistanceToBall < distanceAdversairePlusProcheDeLaBalle())// cas ou il est plus proched de la balle que adversaire
+        return('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
+    return('MOVE ' + tab[8][2] + ' ' + Math.round(equationBall[0] * tab[8][2]+ equationBall[1]) + ' 150');
 }
 
 function distanceAdversairePlusProcheDeLaBalle(){
@@ -130,6 +109,4 @@ function droiteEquationTrajectoireBall(){
     return [a,b];
 }
 
-function trajectoireDangereuse(equation){
-    return (((equation[0] * 0 + equation[1]) < 5250) && (1250 < (equation[0] * 0 + equation[1])))
-}
+
