@@ -65,6 +65,17 @@ function calculTrajectoireOk(xPropo, yPropo){//permet de vérifier si notre traj
     }
 }
 
+function distanceBalleBut() {
+    var distLin = 16000 - tab[8][2];
+    if(tab[8][3] > 1250 && tab[8][3] < 5250) { // la balle est en y entre les deux poteaux =>projection
+        return distLin;
+    } else if(tab[8][3] < 1250) {
+        return Math.sqrt( Math.pow(distLin, 2) + Math.pow(1255-tab[8][3], 2));
+    } else {
+        return Math.sqrt( Math.pow(distLin, 2) + Math.pow(tab[8][3]-5255, 2));
+    }
+}
+
 function droiteEquation(x,y,u,v){
     a = (v-y)/(u-x);
     b = v - a*u;
