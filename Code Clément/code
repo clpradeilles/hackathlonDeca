@@ -61,9 +61,7 @@ function calculTrajectoireOk(xPropo, yPropo){//permet de vérifier si notre traj
     adversaireBloquant = false;
     var i = 3;
     while((i < 7) && (adversaireBloquant === false)){
-        i++;
-        if ((tab[i][2] ) && (tab[i][2]))
-        
+        i++;        
     }
 }
 
