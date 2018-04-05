@@ -46,7 +46,204 @@ while (true) {
 function recuperateurMove0(id){
     var myDistanceToBall = Math.sqrt( Math.pow((tab[id][2]-tab[8][2]), 2) + Math.pow((tab[id][3]-tab[8][3]), 2));
     if (tab[id][6] == 1) //cas ou il a grab la balle
-        print('THROW 16000 5250 500');
+        print('THROW 16000 5250 500')/**
+ * Grab the ball and try to throw it through the opponent's goal!
+ * Move towards the ball and use your team id to determine where you need to throw it.
+ **/
+
+var myTeamId = parseInt(readline()); // if 0 you need to score on the right of the map, if 1 you need to score on the left
+
+// game loop
+var startingBallisInitialized = false;
+while (true) {
+    var tab = [];
+    var entities = parseInt(readline()); // number of entities still in game
+    for (var i = 0; i < entities; i++) {
+        var inputs = readline().split(' ');
+        var entityId = parseInt(inputs[0]); // entity identifier
+        var entityType = inputs[1]; // "FOOTBALLER", "OPPONENT" or "BALL"
+        var x = parseInt(inputs[2]); // position
+        var y = parseInt(inputs[3]); // position
+        var vx = parseInt(inputs[4]); // velocity
+        var vy = parseInt(inputs[5]); // velocity
+        var state = parseInt(inputs[6]); // 1 if the footballer is holding the ball, 0 otherwise
+        tab.push(inputs);
+    }
+    if (startingBallisInitialized === false){
+        startingBallisInitialized = true;
+        var startingBall = [tab[8][2],tab[8][3]];
+        var lastPos = startingBall;
+    }// fonction pour initialiser la position intiale de la ball ne s'opère qu'une seule fois
+
+       var equationBall = droiteEquationTrajectoireBall();
+        // To debug: printErr('Debug messages...');
+        if (myTeamId === 0){
+            print(defenseurMove0());
+            recuperateurMove0(1);
+            recuperateurMove0(2);
+            attaquantMove0(3);
+        }
+        else {
+            print(defenseurMove1());
+            recuperateurMove1(1);
+            recuperateurMove1(2);
+            recuperateurMove1(3);
+        }
+}
+
+function attaquantMove0(id){
+    var idJoueurPlusEnAvant = joueurLePlusEnAvant();
+    if(tab[id][6] == 1) {//cas ou il a grab la balle
+        if(Math.min(distancePlayerEnnemies(id)>2000)) { // si le + proche ennemie est loin
+            if(tab[id][2] > 12000) { // si proche du but
+                var yToShoot = tab[id][3];
+                if(tab[id][2] < 1250) {
+                    yToShoot = 1255;
+                } else if(tab[id][2] < 5250) {
+                    yToShoot = 5245;
+                }
+                print('THROW 16000 '+ yToShoot +' 500');
+            } else if(idJoueurPlusEnAvant!= id){ //si loin but je passe au + en avant
+                print('THROW '+tab[idJoueurPlusEnAvant][2]+' '+tab[idJoueurPlusEnAvant][3]+ ' 400');
+            } else { // si je suis le plus en avant j'avance encore du but
+                print('MOVE '+ 1500 +' '+tab[id][3]+' 150');
+            }
+        } else { // si ennemi proche
+            if(idJoueurPlusEnAvant!= id){ //si loin but je passe au + en avant
+                print('THROW '+tab[idJoueurPlusEnAvant][2]+' '+tab[idJoueurPlusEnAvant][3]+ ' 400');
+            } else { // si je suis le plus en avant j'avance encore du but
+               print('MOVE '+ 1500 +' '+tab[id][3]+' 150');
+            }
+        }
+    } else { //j'ai pas la balle : je me place sur la trajectoire de la balle met en restant en avant (1200 : dernier quart) et si la balle bouge pas je vais sur la balle
+        if (!isNaN(droiteEquationTrajectoireBall()[0])) { //si la balle bouge
+            var xToGo = 1200;
+            var yToGo = Math.round(equationBall[0]*xToGo+equationBall[1]);
+        } else { // si elle ne bouge pas
+            var xToGo = tab[8][2];
+            printErr('xToGo : '+xToGo);
+            var yToGo = tab[8][3];
+        }
+        print('MOVE '+ xToGo +' '+ yToGo +' 150');
+    }
+}
+
+function joueurLePlusEnAvant(){
+    var id = 0;
+    for(var idJoueur = 0; idJoueur < 3; idJoueur++) {
+        if (tab[idJoueur+1][2] > tab[idJoueur[2]]) {
+            id = idJoueur+1;
+        }
+    }
+    return id;
+}
+
+function recuperateurMove0(id){
+    var myDistanceToBall = Math.sqrt( Math.pow((tab[id][2]-tab[8][2]), 2) + Math.pow((tab[id][3]-tab[8][3]), 2));
+    if (tab[id][6] == 1) //cas ou il a grab la balle
+        print('THROW 16000 5210 500');
+    else {
+        if(myDistanceToBall < distanceAdversairePlusProcheDeLaBalle()){
+            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 100');
+        }
+        else {
+            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
+        }
+    }
+}
+
+function defenseurMove0(){
+    if (tab[0][6] == 1)
+        return('THROW '+ tab [0][2] +' 0 500');
+    if (tab[8][2] > 7000)
+        return ('MOVE 2000 3750 100');
+    var myDistanceToBall = Math.sqrt( Math.pow((tab[0][2]-tab[8][2]), 2) + Math.pow((tab[0][3]-tab[8][3]), 2));
+    if (myDistanceToBall < distanceAdversairePlusProcheDeLaBalle())// cas ou il est plus proched de la balle que adversaire
+        return('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
+    return('MOVE ' + tab[8][2] + ' ' + Math.round(equationBall[0] * tab[8][2]+ equationBall[1]) + ' 100');
+}
+
+function recuperateurMove1(id){
+    var myDistanceToBall = Math.sqrt( Math.pow((tab[id][2]-tab[8][2]), 2) + Math.pow((tab[id][3]-tab[8][3]), 2));
+    if (tab[id][6] == 1)
+        print('THROW 0 5250 500');
+    else {
+        if(myDistanceToBall < distanceAdversairePlusProcheDeLaBalle()){
+            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 100');
+        }
+        else {
+            print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
+        }
+    }
+}
+
+function defenseurMove1(){
+    if (tab[0][6] == 1)
+        return('THROW '+ tab [0][2] +' 0 500');
+    if (tab[8][2] < 9000)
+        return ('MOVE 14000 3750 100');
+    var myDistanceToBall = Math.sqrt( Math.pow((tab[0][2]-tab[8][2]), 2) + Math.pow((tab[0][3]-tab[8][3]), 2));
+    if (myDistanceToBall < distanceAdversairePlusProcheDeLaBalle())// cas ou il est plus proched de la balle que adversaire
+        return('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 150');
+    return('MOVE ' + tab[8][2] + ' ' + Math.round(equationBall[0] * tab[8][2]+ equationBall[1]) + ' 150');
+}
+
+function distanceAdversairePlusProcheDeLaBalle(){
+    var dist1 = Math.sqrt( Math.pow((tab[4][2]-tab[8][2]), 2) + Math.pow((tab[4][3]-tab[8][3]), 2));
+    var dist2 = Math.sqrt( Math.pow((tab[5][2]-tab[8][2]), 2) + Math.pow((tab[5][3]-tab[8][3]), 2));
+    var dist3 = Math.sqrt( Math.pow((tab[6][2]-tab[8][2]), 2) + Math.pow((tab[6][3]-tab[8][3]), 2));
+    var dist4 = Math.sqrt( Math.pow((tab[7][2]-tab[8][2]), 2) + Math.pow((tab[7][3]-tab[8][3]), 2));
+    return Math.min(dist1,dist2,dist3,dist4);
+}
+
+function calculTrajectoireOk(xPropo, yPropo){//permet de vérifier si notre trajectoire de ball est ok
+    equationTrajectoireBallon = droiteEquation(tab[0][2],tab[0][3],xPropo,yPropo);
+    adversaireBloquant = false;
+    var i = 3;
+    while((i < 7) && (adversaireBloquant === false)){
+        i++;
+    }
+}
+
+function distanceMatePlusProcheDeLaBalle(){
+    var dist1 = Math.sqrt( Math.pow((tab[0][2]-tab[8][2]), 2) + Math.pow((tab[0][3]-tab[8][3]), 2));
+    var dist2 = Math.sqrt( Math.pow((tab[1][2]-tab[8][2]), 2) + Math.pow((tab[1][3]-tab[8][3]), 2));
+    var dist3 = Math.sqrt( Math.pow((tab[2][2]-tab[8][2]), 2) + Math.pow((tab[2][3]-tab[8][3]), 2));
+    var dist4 = Math.sqrt( Math.pow((tab[3][2]-tab[8][2]), 2) + Math.pow((tab[3][3]-tab[8][3]), 2));
+    return Math.min(dist1,dist2,dist3,dist4);
+}
+
+function distanceBalleBut() {
+    var distLin = 16000 - tab[8][2];
+    if(tab[8][3] > 1250 && tab[8][3] < 5250) { // la balle est en y entre les deux poteaux =>projection
+        return distLin;
+    } else if(tab[8][3] < 1250) {
+        return Math.sqrt( Math.pow(distLin, 2) + Math.pow(1255-tab[8][3], 2));
+    } else {
+        return Math.sqrt( Math.pow(distLin, 2) + Math.pow(tab[8][3]-5245, 2));
+    }
+}
+
+function distancePlayerEnnemies(playerId){
+    var tabEnnemiesDistance = [];
+    for(var ennemyId = 4; ennemyId < 8; ennemyId++) {
+        var disti = Math.sqrt( Math.pow((tab[playerId][2]-tab[ennemyId][2]), 2) + Math.pow((tab[playerId][3]-tab[ennemyId][3]), 2));
+        tabEnnemiesDistance.push(disti);
+    }
+    return tabEnnemiesDistance;
+}
+
+
+function droiteEquationTrajectoireBall(){
+    a = (tab[8][3] - lastPos[1])/(tab[8][2] - lastPos[0]);
+    b = tab[8][3] - a * tab[8][2];
+    lastPos[1] = tab[8][3];
+    lastPos[0] = tab[8][2];
+    return [a,b];
+}
+
+
+;
     else {
         if(myDistanceToBall < distanceAdversairePlusProcheDeLaBalle()){
             print('MOVE ' + tab[8][2] + ' ' + tab[8][3] + ' 100');
